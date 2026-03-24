@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rain & Megh — A Year in the Sky</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;500&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
+<style>
+  /* ── CINEMATIC FOUNDATION ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #040406;
+    --deep: #0a0a0f;
+    --gold: #d4af37;
+    --gold-soft: rgba(212, 175, 55, 0.3);
+    --silver: #a8a8b3;
+    --cream: #f4f1ea;
+    --blur: blur(8px);
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'EB Garamond', serif;
+    overflow-x: hidden;
+    line-height: 1.8;
+    cursor: none;
+  }
+
+  /* Film Grain Overlay */
+  .film-grain {
+    position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Static_Noise.gif');
+    opacity: 0.03; mix-blend-mode: overlay;
+  }
+
+  /* ── CURSOR TRAIL ── */
+  #cursor {
+    position: fixed; width: 5px; height: 5px; background: var(--gold);
+    border-radius: 50%; pointer-events: none; z-index: 10000;
+  }
+  .sparkle {
+    position: fixed; pointer-events: none; background: var(--gold);
+    border-radius: 50%; z-index: 9999; opacity: 0.8;
+  }
+
+  /* ── SPLASH SCREEN ── */
+  #splash {
+    position: fixed; inset: 0; background: #000; z-index: 10001;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .splash-text {
+    font-family: 'Cinzel'; font-size: 1.2rem; letter-spacing: 0.8rem;
+    color: var(--gold); opacity: 0; animation: revealText 5s ease forwards;
+  }
+  #start-btn {
+    margin-top: 40px; background: none; border: 1px solid var(--gold-soft);
+    color: var(--cream); padding: 15px 40px; font-family: 'Cinzel';
+    letter-spacing: 4px; font-size: 0.7rem; opacity: 0;
+    animation: fadeIn 2s ease 3.5s forwards; cursor: none;
+    transition: 0.5s;
+  }
+  #start-btn:hover { border-color: var(--gold); background: rgba(255,255,255,0.05); }
+
+  @keyframes revealText {
+    0% { opacity: 0; filter: blur(20px); letter-spacing: 2rem; }
+    50% { opacity: 1; filter: blur(0px); }
+    100% { opacity: 0; filter: blur(10px); letter-spacing: 0.5rem; }
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; position: relative;
+    padding: 100px 10%; text-align: center;
+  }
+
+  .reveal { opacity: 0; filter: blur(15px); transform: translateY(30px); transition: 2s all ease; }
+  .reveal.active { opacity: 1; filter: blur(0px); transform: translateY(0); }
+
+  /* ── HERO ── */
+  #hero h1 {
+    font-family: 'Cinzel'; font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 400; letter-spacing: 0.3em; margin-bottom: 20px;
+  }
+  #hero h1 span { color: var(--gold); font-style: italic; }
+
+  /* ── THE POETRY ── */
+  .prose {
+    max-width: 700px; font-size: 1.4rem; color: var(--silver);
+    font-style: italic; margin: 40px 0;
+  }
+  .prose strong { color: var(--cream); font-style: normal; font-weight: 400; }
+
+  /* ── TIMELINE ── */
+  .timeline { width: 100%; max-width: 900px; position: relative; margin-top: 50px; }
+  .line {
+    position: absolute; left: 50%; width: 1px; background: var(--gold-soft);
+    top: 0; bottom: 0; transform: translateX(-50%);
+  }
+  .moment { margin: 100px 0; width: 45%; position: relative; }
+  .moment.left { align-self: flex-start; text-align: right; }
+  .moment.right { align-self: flex-end; text-align: left; }
+
+  /* ── MUSIC ── */
+  #music-ui {
+    position: fixed; bottom: 40px; left: 40px; z-index: 9999;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .music-toggle {
+    width: 40px; height: 40px; border: 1px solid var(--gold-soft);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+  .playing-indicator {
+    width: 2px; height: 10px; background: var(--gold);
+    margin: 0 2px; animation: bounce 1s infinite alternate;
+    display: none;
+  }
+  @keyframes bounce { to { height: 20px; } }
+
+  /* ── NEXT CHAPTER ── */
+  #next-chapter { background: radial-gradient(circle at center, #111, #000); }
+  .infinity-symbol {
+    font-size: 4rem; color: var(--gold); margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px var(--gold));
+  }
+</style>
+</head>
+<body>
+
+<div class="film-grain"></div>
+<div id="cursor"></div>
+
+<div id="splash">
+    <div class="splash-text">MEGH — MY INFINITE CLOUD</div>
+    <button id="start-btn">ENTER THE MEMORY</button>
+</div>
+
+<div style="display:none">
+    <iframe id="audio-bridge" width="0" height="0" 
+        src="https://www.youtube.com/embed/uu7j_xljCRY?enablejsapi=1&loop=1&playlist=uu7j_xljCRY" 
+        frameborder="0">
+    </iframe>
+</div>
+
+<div id="music-ui">
+    <div class="music-toggle">
+        <div class="playing-indicator" id="ind1"></div>
+        <div class="playing-indicator" id="ind2" style="animation-delay: 0.2s"></div>
+        <div class="playing-indicator" id="ind3" style="animation-delay: 0.4s"></div>
+    </div>
+    <span style="font-family:'Cinzel'; font-size: 10px; letter-spacing: 2px; color: var(--gold);">SCROLL FOR THE SOUL</span>
+</div>
+
+<section id="hero">
+    <h1 class="reveal">MEGH <span>&</span> RAIN</h1>
+    <p class="prose reveal">
+        Before you, I was just a wanderer of the sky. 
+        You are the <strong>Cloud</strong> that holds me, 
+        and I am the <strong>Rain</strong> that only finds peace 
+        when I am falling toward you.
+    </p>
+</section>
+
+<section id="essence">
+    <h2 style="font-family:'Cinzel'; color:var(--gold);" class="reveal">THE ARCHITECTURE OF US</h2>
+    <div class="prose reveal">
+        365 days ago, the universe shifted. It wasn't a loud explosion; it was the quiet way your eyes met mine. 
+        I realized then that <strong>"Home"</strong> isn't a place on a map. 
+        It's the specific frequency of your laughter.
+    </div>
+</section>
+
+<section id="timeline">
+    <div class="line"></div>
+    
+    <div class="moment left reveal">
+        <h3 style="font-family:'Cinzel';">THE DAY THE RAIN MET THE CLOUD</h3>
+        <p style="color:var(--silver); font-style:italic;">March 24, 2025</p>
+        <p>I remember the air feeling different. Like the atmosphere knew something I didn't yet. 
+        The first time you spoke my name, it sounded like a song I'd forgotten I knew.</p>
+    </div>
+
+    <div class="moment right reveal">
+        <h3 style="font-family:'Cinzel';">THROUGH THE STORMS</h3>
+        <p style="color:var(--silver); font-style:italic;">The Quiet Strength</p>
+        <p>They say clouds bring storms, but they forget that without them, the world stays dry. 
+        In my darkest moments, you were the shade. You were the shelter. You were the only thing that made sense.</p>
+    </div>
+
+    <div class="moment left reveal">
+        <h3 style="font-family:'Cinzel';">ONE YEAR OF LIGHT</h3>
+        <p style="color:var(--silver); font-style:italic;">Today</p>
+        <p>A full cycle of the earth. And yet, I feel like I'm still on page one of a book I never want to finish. 
+        Every day is a new reason to choose you all over again.</p>
+    </div>
+</section>
+
+<section id="letter">
+    <div class="prose reveal" style="max-width: 800px; font-size: 1.6rem;">
+        "I will always be the one falling for you, Megh. 
+        Across every sky, through every season, 
+        I am yours. Completely. Inevitably. Forever."
+    </div>
+    <div class="reveal" style="font-family:'Cinzel'; letter-spacing: 5px; color: var(--gold);">— RAIN</div>
+</section>
+
+<section id="next-chapter">
+    <div class="infinity-symbol reveal">∞</div>
+    <h2 class="reveal" style="font-family:'Cinzel';">TO EVERY YEAR AFTER</h2>
+    <div id="live-clock" class="reveal" style="margin-top: 30px; font-family:'Cinzel'; color: var(--silver);"></div>
+</section>
+
+<script>
+    const startBtn = document.getElementById('start-btn');
+    const splash = document.getElementById('splash');
+    const bridge = document.getElementById('audio-bridge');
+    const indicators = document.querySelectorAll('.playing-indicator');
+
+    // Start Everything
+    startBtn.addEventListener('click', () => {
+        splash.style.opacity = '0';
+        setTimeout(() => splash.style.display = 'none', 2500);
+        
+        // Music Start
+        bridge.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        indicators.forEach(i => i.style.display = 'block');
+    });
+
+    // Reveal on Scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) entry.target.classList.add('active');
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Custom Cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        
+        if(Math.random() > 0.8) {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            s.style.left = e.clientX + 'px';
+            s.style.top = e.clientY + 'px';
+            const size = Math.random() * 3 + 'px';
+            s.style.width = size; s.style.height = size;
+            document.body.appendChild(s);
+            setTimeout(() => {
+                s.style.transform = `translate(${(Math.random()-0.5)*100}px, ${(Math.random()-0.5)*100}px)`;
+                s.style.opacity = '0';
+            }, 20);
+            setTimeout(() => s.remove(), 1000);
+        }
+    });
+
+    // Live Clock (Since March 24, 2025)
+    const startDate = new Date('March 24, 2025 20:00:00');
+    setInterval(() => {
+        const now = new Date();
+        const diff = now - startDate;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diff / 1000 / 60) % 60);
+        const secs = Math.floor((diff / 1000) % 60);
+        document.getElementById('live-clock').innerText = `${days}D : ${hours}H : ${mins}M : ${secs}S`;
+    }, 1000);
+</script>
+
+</body>
+</html>
+
